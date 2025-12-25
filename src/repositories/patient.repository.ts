@@ -34,7 +34,7 @@ export class PatientRepository {
             .values({
                 nationalId: data.national_id,
                 name: data.name,
-                dob: data.birth_date,
+                dob: new Date(data.birth_date).toISOString().split('T')[0],
                 gender: data.gender,
                 phone: data.phone,
                 address: data.address,

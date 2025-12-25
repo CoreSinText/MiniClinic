@@ -9,6 +9,7 @@ import {
   boolean,
   pgEnum,
   decimal,
+  date,
 } from 'drizzle-orm/pg-core';
 
 // ================= ENUMS =================
@@ -61,7 +62,7 @@ export const patients = pgTable('patients', {
   id: uuid('id').defaultRandom().primaryKey(),
   nationalId: varchar('national_id', { length: 20 }).notNull().unique(), // Unique Search Key (NIK)
   name: varchar('name', { length: 255 }).notNull(),
-  dob: timestamp('dob').notNull(), // Date of Birth
+  dob: date('dob').notNull(), // Date of Birth
   address: text('address'),
   phone: varchar('phone', { length: 20 }),
   gender: genderEnum('gender').notNull(),

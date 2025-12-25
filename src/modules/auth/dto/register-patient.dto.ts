@@ -1,4 +1,4 @@
-import { IsDate, IsEmail, IsIn, IsNotEmpty, IsPhoneNumber, IsString, MinLength } from "class-validator";
+import { IsDate, IsDateString, IsEmail, IsIn, IsNotEmpty, IsPhoneNumber, IsString, MinLength } from "class-validator";
 import { genderEnum } from "drizzle/drizzle.schema";
 
 
@@ -20,7 +20,6 @@ export class RegisterUserDto {
     national_id: string
 
     @IsString()
-    @IsPhoneNumber()
     @IsNotEmpty()
     phone_number: string
 
@@ -29,7 +28,7 @@ export class RegisterUserDto {
     @IsNotEmpty()
     address: string
 
-    @IsDate()
+    @IsDateString()
     @IsNotEmpty()
     birth_date: Date
 
