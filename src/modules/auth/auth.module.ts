@@ -2,11 +2,11 @@ import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { DrizzleModule } from '../../../drizzle/drizzle.module';
-import { AuthRepository } from './repositories/auth.repository';
+import { RepositoriesModule } from '../../repositories/repositories.module';
 
 @Module({
-    imports: [DrizzleModule],
+    imports: [DrizzleModule, RepositoriesModule],
     controllers: [AuthController],
-    providers: [AuthService, AuthRepository],
+    providers: [AuthService],
 })
 export class AuthModule { }

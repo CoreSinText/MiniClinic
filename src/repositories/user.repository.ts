@@ -1,12 +1,17 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../../../../drizzle/drizzle.schema';
-import { DrizzleAsyncProvider } from '../../../../drizzle/drizzle.provider';
+import * as schema from '../../drizzle/drizzle.schema';
+import { DrizzleAsyncProvider } from '../../drizzle/drizzle.provider';
 import { eq } from 'drizzle-orm';
-import { RegisterAdminDto } from '../dto/register-admin.dto';
+
+
+interface CreateParams {
+    email: string;
+    role: 'ADMIN' | 'DOCTOR' | 'PHARMACIST' | 'PATIENT';
+}
 
 @Injectable()
-export class AuthRepository {
+export class UserRepository {
     constructor(
         @Inject(DrizzleAsyncProvider)
         private db: NodePgDatabase<typeof schema>,
@@ -18,7 +23,7 @@ export class AuthRepository {
         });
     }
 
-    async createUser(data: RegisterAdminDto & { role: 'ADMIN' }, hashedPassword: string) {
+    async create(data: CreateParams, hashedPassword: string) {
         const [newUser] = await this.db
             .insert(schema.users)
             .values({
@@ -26,12 +31,9 @@ export class AuthRepository {
                 password: hashedPassword,
                 role: data.role,
             })
-            .returning({
-                id: schema.users.id,
-                email: schema.users.email,
-                role: schema.users.role,
-            });
+            .returning({ id: schema.users.id, email: schema.users.email, role: schema.users.role, });
 
         return newUser;
     }
+
 }

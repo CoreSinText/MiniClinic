@@ -4,27 +4,18 @@ import {
 } from '@nestjs/common';
 import { RegisterAdminDto } from './dto/register-admin.dto';
 import * as bcrypt from 'bcrypt';
-import { AuthRepository } from './repositories/auth.repository';
+import { UserRepository } from '../../repositories/user.repository';
 
 @Injectable()
 export class AuthService {
-    constructor(private readonly authRepository: AuthRepository) { }
+    constructor(private readonly userRepository: UserRepository) { }
 
     async registerAdmin(dto: RegisterAdminDto) {
-        // Check if user exists
-        const existingUser = await this.authRepository.findUserByEmail(dto.email);
+        const existingUser = await this.userRepository.findUserByEmail(dto.email);
 
-        if (existingUser) {
-            throw new ConflictException('Email already registered');
-        }
+        if (existingUser) throw new ConflictException('Email already registered');
 
-        // Hash password
         const hashedPassword = await bcrypt.hash(dto.password, 10);
-
-        // Create user
-        return this.authRepository.createUser(
-            { ...dto, role: 'ADMIN' },
-            hashedPassword,
-        );
+        return this.userRepository.create({ ...dto, role: 'ADMIN' }, hashedPassword);
     }
 }
