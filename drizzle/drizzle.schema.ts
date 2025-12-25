@@ -38,6 +38,11 @@ export const prescriptionStatusEnum = pgEnum('prescription_status', [
   'DISPENSED',
 ]);
 
+export const genderEnum = pgEnum('gender', [
+  'Male',
+  'Female',
+]);
+
 
 // ================= TABLES =================
 
@@ -59,7 +64,7 @@ export const patients = pgTable('patients', {
   dob: timestamp('dob').notNull(), // Date of Birth
   address: text('address'),
   phone: varchar('phone', { length: 20 }),
-  gender: varchar('gender', { length: 1 }), // 'M' for Male, 'F' for Female
+  gender: genderEnum('gender').notNull(),
   userId: uuid('user_id').references(() => users.id), // Optional link to login account
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
@@ -69,6 +74,7 @@ export const patients = pgTable('patients', {
 export const doctors = pgTable('doctors', {
   id: uuid('id').defaultRandom().primaryKey(),
   name: varchar('name', { length: 255 }).notNull(),
+  gender: genderEnum('gender').notNull(),
   specialization: specializationEnum('specialization').notNull(),
   licenseNumber: varchar('license_number', { length: 50 }), // Practice License (SIP)
   userId: uuid('user_id')

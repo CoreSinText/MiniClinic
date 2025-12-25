@@ -4,12 +4,14 @@ import * as schema from '../../drizzle/drizzle.schema';
 import { DrizzleAsyncProvider } from '../../drizzle/drizzle.provider';
 import { eq } from 'drizzle-orm';
 import { roleEnum } from '../../drizzle/drizzle.schema';
+import * as bcrypt from 'bcrypt';
 
 
 
 
 interface CreateParams {
     email: string;
+    password: string
     role: typeof roleEnum.enumValues[number]
 }
 
@@ -26,7 +28,8 @@ export class UserRepository {
         });
     }
 
-    async create(data: CreateParams, hashedPassword: string) {
+    async create(data: CreateParams) {
+        const hashedPassword = await bcrypt.hash(data.password, 10);
         const [newUser] = await this.db
             .insert(schema.users)
             .values({
