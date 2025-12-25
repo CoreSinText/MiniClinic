@@ -1,0 +1,9 @@
+import { Injectable } from '@nestjs/common';
+import { NextFunction } from 'express';
+
+@Injectable()
+export class PatientMiddleware {
+  use(req: Request, res: Response, next: NextFunction) {
+    next();
+  }
+}
