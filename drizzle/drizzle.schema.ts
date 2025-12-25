@@ -38,6 +38,7 @@ export const prescriptionStatusEnum = pgEnum('prescription_status', [
   'DISPENSED',
 ]);
 
+
 // ================= TABLES =================
 
 // 1. Users (Login System)

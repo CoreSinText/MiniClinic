@@ -3,11 +3,14 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '../../drizzle/drizzle.schema';
 import { DrizzleAsyncProvider } from '../../drizzle/drizzle.provider';
 import { eq } from 'drizzle-orm';
+import { roleEnum } from '../../drizzle/drizzle.schema';
+
+
 
 
 interface CreateParams {
     email: string;
-    role: 'ADMIN' | 'DOCTOR' | 'PHARMACIST' | 'PATIENT';
+    role: typeof roleEnum.enumValues[number]
 }
 
 @Injectable()
