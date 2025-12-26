@@ -2,7 +2,7 @@ import { Inject, Injectable } from "@nestjs/common";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { DrizzleAsyncProvider } from "drizzle/drizzle.provider";
 import * as schema from '../../drizzle/drizzle.schema';
-import { eq } from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, SQL } from "drizzle-orm";
 
 
 interface CreateParams {
@@ -11,6 +11,14 @@ interface CreateParams {
     name: string,
     gender: typeof schema.doctors.gender.enumValues[number],
     user_id: string
+}
+
+interface FindManyParams {
+    take?: number;
+    skip?: number;
+    search_by_name?: string;
+    search_by_id?: string;
+    sort_by_name?: 'asc' | 'desc';
 }
 @Injectable()
 export class DoctorRepository {
@@ -43,5 +51,37 @@ export class DoctorRepository {
         })
 
         return newDoctor;
+    }
+
+    async findMany(query: FindManyParams) {
+        const order = query.sort_by_name === 'desc' ? desc(schema.doctors.name) : asc(schema.doctors.name);
+        const filters: SQL[] = [];
+
+        if (query.search_by_name) filters.push(ilike(schema.doctors.name, `%${query.search_by_name}%`));
+        if (query.search_by_id) filters.push(eq(schema.doctors.id, query.search_by_id));
+
+        const whereCondition = filters.length > 0 ? and(...filters) : undefined;
+
+
+        const [doctors, total_data] = await Promise.all([
+            this.db.query.doctors.findMany({
+                where: whereCondition,
+                limit: query.take,
+                offset: query.skip,
+                orderBy: [order],
+                with: {
+                    user: {
+                        columns: { email: true, role: true, }
+                    }
+                }
+            }),
+            this.db
+                .select({ count: count() })
+                .from(schema.doctors)
+                .where(whereCondition)
+                .then(res => res[0]?.count ?? 0)
+        ]);
+
+        return { doctors, total_data };
     }
 }

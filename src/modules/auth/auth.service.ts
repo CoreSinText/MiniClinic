@@ -2,8 +2,7 @@ import {
     BadRequestException,
     ConflictException,
     Injectable,
-    InternalServerErrorException,
-    NotFoundException
+    InternalServerErrorException
 } from '@nestjs/common';
 import { RegisterAdminDto } from './dto/register-admin.dto';
 import { UserRepository } from '../../repositories/user.repository';
@@ -34,7 +33,7 @@ export class AuthService {
         const register = await this.userRepository.create({ ...dto, role: 'ADMIN' });
 
         if (register) {
-            return { user_id: register.id, email: register.email, role: register.role! }
+            return { data: { user_id: register.id, email: register.email, role: register.role! } }
         } else throw new InternalServerErrorException('Failed to register admin')
     }
 
@@ -50,7 +49,7 @@ export class AuthService {
         if (registerUser) {
             const { national_id, phone_number, address, birth_date, name, gender } = dto
             const registerPatient = await this.patientRepository.create({ national_id, phone: phone_number, address, birth_date, name, gender, user_id: registerUser.id });
-            return { user_id: registerUser.id, email: registerUser.email, national_id, phone_number, address, birth_date: registerPatient.dob, name, gender, role: registerUser.role! }
+            return { data: { user_id: registerUser.id, email: registerUser.email, national_id, phone_number, address, birth_date: registerPatient.dob, name, gender, role: registerUser.role! } }
         } else throw new InternalServerErrorException('Failed to register patient')
     }
 
@@ -65,7 +64,7 @@ export class AuthService {
         if (registerUser) {
             const { name, gender, licance_number, specialization } = dto
             const registerDoctor = await this.doctorRepository.create({ name, gender, licance_number, specialization, user_id: registerUser.id });
-            return { user_id: registerUser.id, email: registerUser.email, licance_number: registerDoctor.licenseNumber!, specialization: registerDoctor.specialization, name: registerDoctor.name, gender, role: registerUser.role! }
+            return { data: { user_id: registerUser.id, email: registerUser.email, licance_number: registerDoctor.licenseNumber!, specialization: registerDoctor.specialization, name: registerDoctor.name, gender, role: registerUser.role! } }
         } else throw new InternalServerErrorException('Failed to register doctor')
     }
 
@@ -80,7 +79,7 @@ export class AuthService {
         if (registerUser) {
             const { name, gender, license_number } = dto
             const registerPharmacist = await this.pharmacistRepository.create({ name, gender, licenseNumber: license_number, userId: registerUser.id });
-            return { user_id: registerUser.id, email: registerUser.email, license_number: registerPharmacist.licenseNumber!, name, gender, role: registerUser.role! }
+            return { data: { user_id: registerUser.id, email: registerUser.email, license_number: registerPharmacist.licenseNumber!, name, gender, role: registerUser.role! } }
         } else throw new InternalServerErrorException('Failed to register pharmacist')
     }
 
@@ -107,6 +106,6 @@ export class AuthService {
 
         const token = JwtToken.generate({ id: user.id, role: user.role!, email: user.email, });
 
-        return { token, user_id: existingUser.id, email: existingUser.email, name, role: existingUser.role! }
+        return { data: { token, user_id: existingUser.id, email: existingUser.email, name, role: existingUser.role! } }
     }
 }

@@ -16,10 +16,10 @@ export class TransformInterceptor<T>
         next: CallHandler,
     ): Observable<ApiResponse<T>> {
         return next.handle().pipe(
-            map((data) => ({
+            map((result) => ({
                 success: true,
                 message: 'Request successful',
-                data,
+                result,
             })),
         );
     }
