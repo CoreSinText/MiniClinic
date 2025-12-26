@@ -28,6 +28,14 @@ export class UserRepository {
         });
     }
 
+    async verifyEmailWithPassword(email: string, password: string) {
+        const user = await this.findUserByEmail(email);
+        if (!user) return false;
+        const compare = await bcrypt.compare(password, user.password);
+        if (!compare) return false;
+        return user;
+    }
+
     async create(data: CreateParams) {
         const hashedPassword = await bcrypt.hash(data.password, 10);
         const [newUser] = await this.db

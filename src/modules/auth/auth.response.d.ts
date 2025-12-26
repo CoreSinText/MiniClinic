@@ -36,3 +36,12 @@ export interface AuthRegisterPharmacistResponse {
     gender: string,
     role: typeof roleEnum.enumValues[number]
 }
+
+
+export interface AuthLoginResponse {
+    token: string
+    user_id: string,
+    email: string,
+    name: string
+    role: typeof roleEnum.enumValues[number]
+}

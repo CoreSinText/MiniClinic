@@ -4,6 +4,7 @@ import { RegisterAdminDto } from './dto/register-admin.dto';
 import { RegisterUserDto } from './dto/register-patient.dto';
 import { RegisterDoctorDto } from './dto/register-doctor.dto';
 import { RegisterPharmacistDto } from './dto/register-pharmacist.dto';
+import { LoginDto } from './dto/login.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -28,5 +29,10 @@ export class AuthController {
     @Post("register/pharmacy")
     async registerPharmacist(@Body() dto: RegisterPharmacistDto) {
         return this.authService.registerPharmacist(dto);
+    }
+
+    @Post("login")
+    async login(@Body() dto: LoginDto) {
+        return this.authService.login(dto);
     }
 }

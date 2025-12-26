@@ -27,13 +27,21 @@ export class DoctorRepository {
 
 
     async create(params: CreateParams) {
-        this.db.insert(schema.doctors).values({
+        const [newDoctor] = await this.db.insert(schema.doctors).values({
             licenseNumber: params.licance_number,
             specialization: params.specialization,
             name: params.name,
             gender: params.gender,
             userId: params.user_id
-
+        }).returning({
+            id: schema.doctors.id,
+            licenseNumber: schema.doctors.licenseNumber,
+            specialization: schema.doctors.specialization,
+            name: schema.doctors.name,
+            gender: schema.doctors.gender,
+            userId: schema.doctors.userId
         })
+
+        return newDoctor;
     }
 }

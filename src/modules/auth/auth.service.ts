@@ -1,7 +1,9 @@
 import {
+    BadRequestException,
     ConflictException,
     Injectable,
-    InternalServerErrorException
+    InternalServerErrorException,
+    NotFoundException
 } from '@nestjs/common';
 import { RegisterAdminDto } from './dto/register-admin.dto';
 import { UserRepository } from '../../repositories/user.repository';
@@ -11,7 +13,9 @@ import { DoctorRepository } from 'src/repositories/doctor.repository';
 import { RegisterDoctorDto } from './dto/register-doctor.dto';
 import { RegisterPharmacistDto } from './dto/register-pharmacist.dto';
 import { PharmacistRepository } from 'src/repositories/pharmacist.repository';
-import { AuthRegisterAdminResponse, AuthRegisterDoctorResponse, AuthRegisterPatientResponse, AuthRegisterPharmacistResponse } from './auth.response';
+import { AuthLoginResponse, AuthRegisterAdminResponse, AuthRegisterDoctorResponse, AuthRegisterPatientResponse, AuthRegisterPharmacistResponse } from './auth.response';
+import { LoginDto } from './dto/login.dto';
+import { JwtToken } from 'src/utils/JwtToken';
 
 @Injectable()
 export class AuthService {
@@ -61,7 +65,7 @@ export class AuthService {
         if (registerUser) {
             const { name, gender, licance_number, specialization } = dto
             const registerDoctor = await this.doctorRepository.create({ name, gender, licance_number, specialization, user_id: registerUser.id });
-            return { user_id: registerUser.id, email: registerUser.email, licance_number, specialization, name, gender, role: registerUser.role! }
+            return { user_id: registerUser.id, email: registerUser.email, licance_number: registerDoctor.licenseNumber!, specialization: registerDoctor.specialization, name: registerDoctor.name, gender, role: registerUser.role! }
         } else throw new InternalServerErrorException('Failed to register doctor')
     }
 
@@ -78,5 +82,31 @@ export class AuthService {
             const registerPharmacist = await this.pharmacistRepository.create({ name, gender, licenseNumber: license_number, userId: registerUser.id });
             return { user_id: registerUser.id, email: registerUser.email, license_number: registerPharmacist.licenseNumber!, name, gender, role: registerUser.role! }
         } else throw new InternalServerErrorException('Failed to register pharmacist')
+    }
+
+    async login(dto: LoginDto): Promise<AuthLoginResponse> {
+        const existingUser = await this.userRepository.findUserByEmail(dto.email);
+
+        if (!existingUser) throw new BadRequestException('Email or password is incorrect');
+        const user = await this.userRepository.verifyEmailWithPassword(dto.email, dto.password);
+        if (!user) throw new BadRequestException('Email or password is incorrect');
+
+        let name = '';
+        if (user.role === 'PATIENT') {
+            const patient = await this.patientRepository.findPatientByUserId(user.id);
+            name = patient?.name || '';
+        } else if (user.role === 'DOCTOR') {
+            const doctor = await this.doctorRepository.findById(user.id);
+            name = doctor?.name || '';
+        } else if (user.role === 'PHARMACIST') {
+            const pharmacist = await this.pharmacistRepository.findByUserId(user.id);
+            name = pharmacist?.name || '';
+        } else if (user.role === 'ADMIN') {
+            name = 'Admin';
+        }
+
+        const token = JwtToken.generate({ id: user.id, role: user.role!, email: user.email, });
+
+        return { token, user_id: existingUser.id, email: existingUser.email, name, role: existingUser.role! }
     }
 }
