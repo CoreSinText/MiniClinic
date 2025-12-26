@@ -20,6 +20,15 @@ interface FindManyParams {
     search_by_id?: string;
     sort_by_name?: 'asc' | 'desc';
 }
+
+
+interface UpdateParams {
+    user_id: string,
+    licance_number?: string,
+    specialization?: typeof schema.doctors.specialization.enumValues[number],
+    name?: string,
+    gender?: typeof schema.doctors.gender.enumValues[number],
+}
 @Injectable()
 export class DoctorRepository {
     constructor(
@@ -83,5 +92,22 @@ export class DoctorRepository {
         ]);
 
         return { doctors, total_data };
+    }
+
+    async update(params: UpdateParams) {
+        const [updatedDoctor] = await this.db
+            .update(schema.doctors)
+            .set(params)
+            .where(eq(schema.doctors.userId, params.user_id))
+            .returning({
+                id: schema.doctors.id,
+                licenseNumber: schema.doctors.licenseNumber,
+                specialization: schema.doctors.specialization,
+                name: schema.doctors.name,
+                gender: schema.doctors.gender,
+                userId: schema.doctors.userId
+            });
+
+        return updatedDoctor;
     }
 }

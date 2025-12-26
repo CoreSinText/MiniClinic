@@ -15,6 +15,11 @@ interface CreateParams {
     role: typeof roleEnum.enumValues[number]
 }
 
+interface UpdateParams {
+    id: string;
+    email: string;
+}
+
 @Injectable()
 export class UserRepository {
     constructor(
@@ -25,6 +30,12 @@ export class UserRepository {
     async findUserByEmail(email: string) {
         return this.db.query.users.findFirst({
             where: eq(schema.users.email, email),
+        });
+    }
+
+    async findById(id: string) {
+        return this.db.query.users.findFirst({
+            where: eq(schema.users.id, id),
         });
     }
 
@@ -48,6 +59,16 @@ export class UserRepository {
             .returning({ id: schema.users.id, email: schema.users.email, role: schema.users.role, });
 
         return newUser;
+    }
+
+    async update(data: UpdateParams) {
+        const [updatedUser] = await this.db
+            .update(schema.users)
+            .set(data)
+            .where(eq(schema.users.id, data.id))
+            .returning({ id: schema.users.id, email: schema.users.email, role: schema.users.role, });
+
+        return updatedUser;
     }
 
 }

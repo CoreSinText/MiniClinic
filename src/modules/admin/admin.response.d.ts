@@ -9,3 +9,15 @@ export interface GetDoctorsResponse {
     }[];
     meta: { total_data: number; }
 }
+
+
+export interface PatchDoctorResponse {
+    data: {
+        user_id: string;
+        license_number: string | null;
+        specialization: string;
+        name: string;
+        gender: string;
+        email: string
+    }
+}
