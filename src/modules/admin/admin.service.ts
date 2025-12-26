@@ -1,9 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { GetDoctorsQueryDto } from './dto/get-doctors.dto';
 import { DoctorRepository } from 'src/repositories/doctor.repository';
-import { GetDoctorsResponse, PatchDoctorResponse } from './admin.response';
+import { GetDoctorsResponse, PatchDoctorResponse, PostDoctorResponse } from './admin.response';
 import { PatchDoctorDto } from './dto/patch-doctor.dto';
 import { UserRepository } from 'src/repositories/user.repository';
+import { PostDoctorDto } from './dto/post-doctor.dto';
 
 @Injectable()
 export class AdminService {
@@ -47,6 +48,23 @@ export class AdminService {
         result.gender = updateDoctor.gender;
         result.license_number = updateDoctor.licenseNumber!;
         result.specialization = updateDoctor.specialization;
+
+        return { data: result }
+    }
+
+    async postDoctor(dto: PostDoctorDto): Promise<PostDoctorResponse> {
+        const isUserExist = await this.userRepository.findUserByEmail(dto.email);
+        if (isUserExist) throw new BadRequestException("User already exists");
+
+        const user = await this.userRepository.create({ email: dto.email, password: dto.password, role: "DOCTOR" });
+        const result: PostDoctorResponse['data'] = { name: "", gender: "Female", license_number: "", specialization: "GENERAL", email: user.email, user_id: "" }
+
+        const postDoctor = await this.doctorRepository.create({ user_id: user.id, name: dto.name, gender: dto.gender, licance_number: dto.licance_number, specialization: dto.specialization });
+        result.user_id = postDoctor.userId;
+        result.name = postDoctor.name;
+        result.gender = postDoctor.gender;
+        result.license_number = postDoctor.licenseNumber!;
+        result.specialization = postDoctor.specialization;
 
         return { data: result }
     }

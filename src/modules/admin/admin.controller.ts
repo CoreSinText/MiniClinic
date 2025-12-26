@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Param, Patch, Query } from "@nestjs/common";
+import { Body, Controller, Get, Param, Patch, Post, Query } from "@nestjs/common";
 import { AdminService } from "./admin.service";
 import { GetDoctorsQueryDto } from "./dto/get-doctors.dto";
 import { PatchDoctorDto } from "./dto/patch-doctor.dto";
+import { PostDoctorDto } from "./dto/post-doctor.dto";
 
 @Controller("admin")
 export class AdminController {
@@ -15,5 +16,10 @@ export class AdminController {
     @Patch("doctor/:id")
     async patchDoctor(@Param("id") id: string, @Body() dto: PatchDoctorDto) {
         return this.adminService.patchDoctor(id, dto);
+    }
+
+    @Post("doctor")
+    async postDoctor(@Body() dto: PostDoctorDto) {
+        return this.adminService.postDoctor(dto);
     }
 }

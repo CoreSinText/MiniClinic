@@ -21,3 +21,14 @@ export interface PatchDoctorResponse {
         email: string
     }
 }
+
+export interface PostDoctorResponse {
+    data: {
+        user_id: string;
+        license_number: string | null;
+        specialization: string;
+        name: string;
+        gender: string;
+        email: string
+    }
+}
