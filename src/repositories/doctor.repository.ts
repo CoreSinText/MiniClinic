@@ -95,9 +95,16 @@ export class DoctorRepository {
     }
 
     async update(params: UpdateParams) {
+        console.log(params.licance_number);
+
         const [updatedDoctor] = await this.db
             .update(schema.doctors)
-            .set(params)
+            .set({
+                licenseNumber: params.licance_number,
+                specialization: params.specialization,
+                name: params.name,
+                gender: params.gender,
+            })
             .where(eq(schema.doctors.userId, params.user_id))
             .returning({
                 id: schema.doctors.id,

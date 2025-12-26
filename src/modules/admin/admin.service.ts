@@ -31,13 +31,13 @@ export class AdminService {
     }
 
     async patchDoctor(id: string, dto: PatchDoctorDto): Promise<PatchDoctorResponse> {
-        const { name, gender, licance_number, specialization, email } = dto;
+        const { name, gender, licance_number, specialization, email, password } = dto;
         const user = await this.userRepository.findById(id);
-        const result: PatchDoctorResponse['data'] = { name: "", gender: "Female", license_number: "", specialization: "GENERAL", email: "", user_id: "" }
+        const result: PatchDoctorResponse['data'] = { name: "", gender: "Female", license_number: "", specialization: "GENERAL", email: user?.email!, user_id: "" }
 
         if (!user) throw new BadRequestException("User not found");
         if (email) {
-            const updateEmail = await this.userRepository.update({ id, email });
+            const updateEmail = await this.userRepository.update({ id, email, password });
             result.email = updateEmail.email;
         }
 

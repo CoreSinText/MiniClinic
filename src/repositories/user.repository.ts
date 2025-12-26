@@ -18,6 +18,7 @@ interface CreateParams {
 interface UpdateParams {
     id: string;
     email: string;
+    password: string
 }
 
 @Injectable()
@@ -64,7 +65,7 @@ export class UserRepository {
     async update(data: UpdateParams) {
         const [updatedUser] = await this.db
             .update(schema.users)
-            .set(data)
+            .set({ email: data.email, password: data.password ? await bcrypt.hash(data.password, 10) : undefined })
             .where(eq(schema.users.id, data.id))
             .returning({ id: schema.users.id, email: schema.users.email, role: schema.users.role, });
 

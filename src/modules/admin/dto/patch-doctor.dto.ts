@@ -1,4 +1,4 @@
-import { IsEmail, IsIn, IsOptional, isString, IsString } from "class-validator";
+import { IsEmail, IsIn, IsOptional, isString, IsString, MinLength } from "class-validator";
 import { genderEnum, specializationEnum } from "drizzle/drizzle.schema";
 
 export class PatchDoctorDto {
@@ -24,5 +24,10 @@ export class PatchDoctorDto {
     @IsOptional()
     @IsEmail()
     email: string
+
+    @IsOptional()
+    @IsString()
+    @MinLength(6)
+    password: string
 
 }
