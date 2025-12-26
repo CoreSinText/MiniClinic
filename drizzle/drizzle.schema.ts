@@ -86,6 +86,20 @@ export const doctors = pgTable('doctors', {
   updatedAt: timestamp('updated_at').defaultNow(),
 });
 
+// 3.5 Pharmacists (Pharmacy Staff)
+export const pharmacists = pgTable('pharmacists', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  gender: genderEnum('gender').notNull(),
+  licenseNumber: varchar('license_number', { length: 50 }), // SIPA (Surat Izin Praktik Apoteker)
+  userId: uuid('user_id')
+    .references(() => users.id)
+    .notNull()
+    .unique(),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
 // 4. Doctor Schedules
 export const doctorSchedules = pgTable('doctor_schedules', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -197,6 +211,13 @@ export const doctorsRelations = relations(doctors, ({ one, many }) => ({
   }),
   schedules: many(doctorSchedules),
   appointments: many(appointments),
+}));
+
+export const pharmacistsRelations = relations(pharmacists, ({ one }) => ({
+  user: one(users, {
+    fields: [pharmacists.userId],
+    references: [users.id],
+  }),
 }));
 
 export const doctorSchedulesRelations = relations(

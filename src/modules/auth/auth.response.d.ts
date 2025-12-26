@@ -17,3 +17,22 @@ export interface AuthRegisterPatientResponse {
     gender: string,
     role: typeof roleEnum.enumValues[number]
 }
+
+export interface AuthRegisterDoctorResponse {
+    user_id: string,
+    email: string,
+    licance_number: string,
+    specialization: string,
+    name: string,
+    gender: string,
+    role: typeof roleEnum.enumValues[number]
+}
+
+export interface AuthRegisterPharmacistResponse {
+    user_id: string,
+    email: string,
+    license_number: string,
+    name: string,
+    gender: string,
+    role: typeof roleEnum.enumValues[number]
+}
