@@ -1,4 +1,5 @@
 import { relations } from 'drizzle-orm';
+import { time } from 'drizzle-orm/pg-core';
 import {
   pgTable,
   uuid,
@@ -104,8 +105,8 @@ export const pharmacists = pgTable('pharmacists', {
 export const doctorSchedules = pgTable('doctor_schedules', {
   id: uuid('id').defaultRandom().primaryKey(),
   dayOfWeek: integer('day_of_week').notNull(), // 0=Sunday, 1=Monday, etc.
-  startTime: varchar('start_time', { length: 5 }).notNull(), // Format: "08:00"
-  endTime: varchar('end_time', { length: 5 }).notNull(), // Format: "12:00"
+  startTime: time("start_time").notNull(),
+  endTime: time("end_time").notNull(),
   isActive: boolean('is_active').default(true),
   doctorId: uuid('doctor_id')
     .references(() => doctors.id)

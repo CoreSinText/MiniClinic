@@ -95,8 +95,6 @@ export class DoctorRepository {
     }
 
     async update(params: UpdateParams) {
-        console.log(params.licance_number);
-
         const [updatedDoctor] = await this.db
             .update(schema.doctors)
             .set({

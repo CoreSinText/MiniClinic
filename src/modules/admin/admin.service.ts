@@ -1,16 +1,21 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { GetDoctorsQueryDto } from './dto/get-doctors.dto';
 import { DoctorRepository } from 'src/repositories/doctor.repository';
-import { GetDoctorsResponse, PatchDoctorResponse, PostDoctorResponse } from './admin.response';
+import { DeleteScheduleDoctorResponse, GetDoctorsResponse, GetScheduleDoctorResponse, PatchDoctorResponse, PatchScheduleDoctorResponse, PostDoctorResponse, PostScheduleDoctorResponse } from './admin.response';
 import { PatchDoctorDto } from './dto/patch-doctor.dto';
 import { UserRepository } from 'src/repositories/user.repository';
 import { PostDoctorDto } from './dto/post-doctor.dto';
+import { GetScheduleDoctorDto } from './dto/get-schedule-doctor.dto';
+import { ScheduleDoctorRepository } from 'src/repositories/schedule-doctor.repository';
+import { PatchScheduleDoctorDto } from './dto/patch-schedule-doctor.dto';
+import { PostScheduleDoctorDto } from './dto/post-schedule-doctor.dto';
 
 @Injectable()
 export class AdminService {
     constructor(
         private doctorRepository: DoctorRepository,
-        private userRepository: UserRepository
+        private userRepository: UserRepository,
+        private scheduleDoctorRepository: ScheduleDoctorRepository
     ) { }
 
     async getDoctors(query: GetDoctorsQueryDto): Promise<GetDoctorsResponse> {
@@ -67,5 +72,68 @@ export class AdminService {
         result.specialization = postDoctor.specialization;
 
         return { data: result }
+    }
+
+    async getScheduleDoctor(query: GetScheduleDoctorDto): Promise<GetScheduleDoctorResponse> {
+        const data = await this.scheduleDoctorRepository.findMany(query)
+        return {
+            data: data.data.map((data: any) => ({
+                id: data.id,
+                is_active: data.isActive,
+                day_of_week: data.dayOfWeek,
+                day_name: data.dayName,
+                time: { start: data.startTime, end: data.endTime },
+                doctor: { id: data.doctor.id, name: data.doctor.name }
+            })),
+            meta: { total_data: data.total_data }
+        }
+    }
+
+    async postScheduleDoctor(dto: PostScheduleDoctorDto): Promise<PostScheduleDoctorResponse> {
+        const { doctor_id, day_of_week, is_active, end_time, start_time } = dto;
+
+        const isConflict = await this.scheduleDoctorRepository.conflictSchedule({ doctor_id, day_of_week, start_time, end_time });
+        if (isConflict) throw new BadRequestException("Schedule already exists");
+
+        const add = await this.scheduleDoctorRepository.create({ doctorId: doctor_id, dayOfWeek: day_of_week, isActive: is_active, endTime: end_time, startTime: start_time });
+        return {
+            data: {
+                id: add.id,
+                is_active: add.is_active!,
+                day_of_week: add.day_of_week,
+                day_name: add.day_name,
+                time: { start: add.time.start, end: add.time.end },
+                doctor: { id: add.doctor.id, name: add.doctor.name }
+            }
+        }
+    }
+
+    async patchScheduleDoctor(id: string, dto: PatchScheduleDoctorDto): Promise<PatchScheduleDoctorResponse> {
+        const { day_of_week, is_active, end_time, start_time } = dto
+
+        const update = await this.scheduleDoctorRepository.update({ id, dayOfWeek: day_of_week, isActive: is_active, endTime: end_time, startTime: start_time });
+        return {
+            data: {
+                id: update.id,
+                is_active: update.is_active!,
+                day_of_week: update.day_of_week,
+                day_name: update.day_name,
+                time: { start: update.time.start, end: update.time.end },
+                doctor: { id: update.doctor.id, name: update.doctor.name }
+            }
+        }
+    }
+
+
+
+    async deleteScheduleDoctor(id: string): Promise<DeleteScheduleDoctorResponse> {
+        const deleteScheduleDoctor = await this.scheduleDoctorRepository.delete(id);
+        if (!deleteScheduleDoctor) throw new BadRequestException("Schedule not found");
+
+        return {
+            data: {
+                id: deleteScheduleDoctor.id,
+            }
+        }
     }
 }

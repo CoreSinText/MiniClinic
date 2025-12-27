@@ -5,11 +5,12 @@ import { PatientRepository } from './patient.repository';
 import { DoctorRepository } from './doctor.repository';
 
 import { PharmacistRepository } from './pharmacist.repository';
+import { ScheduleDoctorRepository } from './schedule-doctor.repository';
 
 @Global()
 @Module({
     imports: [DrizzleModule],
-    providers: [UserRepository, PatientRepository, DoctorRepository, PharmacistRepository],
-    exports: [UserRepository, PatientRepository, DoctorRepository, PharmacistRepository],
+    providers: [UserRepository, PatientRepository, DoctorRepository, PharmacistRepository, ScheduleDoctorRepository],
+    exports: [UserRepository, PatientRepository, DoctorRepository, PharmacistRepository, ScheduleDoctorRepository],
 })
 export class RepositoriesModule { }
