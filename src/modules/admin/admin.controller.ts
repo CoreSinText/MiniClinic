@@ -6,6 +6,9 @@ import { PostDoctorDto } from "./dto/post-doctor.dto";
 import { PostScheduleDoctorDto } from "./dto/post-schedule-doctor.dto";
 import { PatchScheduleDoctorDto } from "./dto/patch-schedule-doctor.dto";
 import { GetScheduleDoctorDto } from "./dto/get-schedule-doctor.dto";
+import { GetPatientsQueryDto, PostPatientDto, PatchPatientDto } from "./dto/patient.dto";
+import { GetPharmacistsQueryDto, PostPharmacistDto, PatchPharmacistDto } from "./dto/pharmacist.dto";
+import { GetMedicinesQueryDto, PostMedicineDto, PatchMedicineDto } from "./dto/medicine.dto";
 
 @Controller("admin")
 export class AdminController {
@@ -46,5 +49,66 @@ export class AdminController {
         return this.adminService.deleteScheduleDoctor(id);
     }
 
+    // Patient
+    @Get("patients")
+    async getPatients(@Query() query: GetPatientsQueryDto) {
+        return this.adminService.getPatients(query);
+    }
 
+    @Post("patient")
+    async postPatient(@Body() dto: PostPatientDto) {
+        return this.adminService.postPatient(dto);
+    }
+
+    @Patch("patient/:id")
+    async patchPatient(@Param("id") id: string, @Body() dto: PatchPatientDto) {
+        return this.adminService.patchPatient(id, dto);
+    }
+
+    @Delete("patient/:id")
+    async deletePatient(@Param("id") id: string) {
+        return this.adminService.deletePatient(id);
+    }
+
+    // Pharmacist
+    @Get("pharmacists")
+    async getPharmacists(@Query() query: GetPharmacistsQueryDto) {
+        return this.adminService.getPharmacists(query);
+    }
+
+    @Post("pharmacist")
+    async postPharmacist(@Body() dto: PostPharmacistDto) {
+        return this.adminService.postPharmacist(dto);
+    }
+
+    @Patch("pharmacist/:id")
+    async patchPharmacist(@Param("id") id: string, @Body() dto: PatchPharmacistDto) {
+        return this.adminService.patchPharmacist(id, dto);
+    }
+
+    @Delete("pharmacist/:id")
+    async deletePharmacist(@Param("id") id: string) {
+        return this.adminService.deletePharmacist(id);
+    }
+
+    // Medicine
+    @Get("medicines")
+    async getMedicines(@Query() query: GetMedicinesQueryDto) {
+        return this.adminService.getMedicines(query);
+    }
+
+    @Post("medicine")
+    async postMedicine(@Body() dto: PostMedicineDto) {
+        return this.adminService.postMedicine(dto);
+    }
+
+    @Patch("medicine/:id")
+    async patchMedicine(@Param("id") id: string, @Body() dto: PatchMedicineDto) {
+        return this.adminService.patchMedicine(id, dto);
+    }
+
+    @Delete("medicine/:id")
+    async deleteMedicine(@Param("id") id: string) {
+        return this.adminService.deleteMedicine(id);
+    }
 }

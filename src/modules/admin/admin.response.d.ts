@@ -57,3 +57,78 @@ export interface PatchScheduleDoctorResponse {
 export interface DeleteScheduleDoctorResponse {
     data: { id: string }
 }
+
+// Patient Response
+export interface GetPatientsResponse {
+    data: {
+        id: string;
+        national_id: string;
+        name: string;
+        dob: string;
+        gender: string;
+        phone: string | null;
+        address: string | null;
+        email: string;
+    }[];
+    meta: { total_data: number; }
+}
+
+export interface PostPatientResponse {
+    data: GetPatientsResponse['data'][number]
+}
+
+export interface PatchPatientResponse {
+    data: GetPatientsResponse['data'][number]
+}
+
+export interface DeletePatientResponse {
+    data: { id: string }
+}
+
+// Pharmacist Response
+export interface GetPharmacistsResponse {
+    data: {
+        id: string;
+        name: string;
+        gender: string;
+        license_number: string | null;
+        email: string;
+    }[];
+    meta: { total_data: number; }
+}
+
+export interface PostPharmacistResponse {
+    data: GetPharmacistsResponse['data'][number]
+}
+
+export interface PatchPharmacistResponse {
+    data: GetPharmacistsResponse['data'][number]
+}
+
+export interface DeletePharmacistResponse {
+    data: { id: string }
+}
+
+// Medicine Response
+export interface GetMedicinesResponse {
+    data: {
+        id: string;
+        name: string;
+        stock: number;
+        price: string;
+        unit: string;
+    }[];
+    meta: { total_data: number; }
+}
+
+export interface PostMedicineResponse {
+    data: GetMedicinesResponse['data'][number]
+}
+
+export interface PatchMedicineResponse {
+    data: GetMedicinesResponse['data'][number]
+}
+
+export interface DeleteMedicineResponse {
+    data: { id: string }
+}

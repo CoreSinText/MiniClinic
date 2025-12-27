@@ -78,7 +78,7 @@ export class AuthService {
 
         if (registerUser) {
             const { name, gender, license_number } = dto
-            const registerPharmacist = await this.pharmacistRepository.create({ name, gender, licenseNumber: license_number, userId: registerUser.id });
+            const registerPharmacist = await this.pharmacistRepository.create({ name, gender, license_number: license_number, user_id: registerUser.id });
             return { data: { user_id: registerUser.id, email: registerUser.email, license_number: registerPharmacist.licenseNumber!, name, gender, role: registerUser.role! } }
         } else throw new InternalServerErrorException('Failed to register pharmacist')
     }
