@@ -1,4 +1,4 @@
-import { IsDefined, IsEnum, IsInt, IsOptional, IsString, ValidateIf } from "class-validator";
+import { IsDefined, IsEmail, IsEnum, IsInt, IsOptional, IsString, MinLength, ValidateIf } from "class-validator";
 import { Transform } from "class-transformer";
 import { IsMutuallyExclusiveWith } from "src/utils/decorators";
 
@@ -39,6 +39,13 @@ export class PostPharmacistDto {
 
     @IsString()
     license_number: string;
+
+    @IsEmail()
+    email: string;
+
+    @IsString()
+    @MinLength(6)
+    password: string;
 }
 
 export class PatchPharmacistDto {
@@ -53,4 +60,12 @@ export class PatchPharmacistDto {
     @IsOptional()
     @IsString()
     license_number?: string;
+
+    @IsOptional()
+    @IsString()
+    email?: string;
+
+    @IsOptional()
+    @IsString()
+    password?: string;
 }

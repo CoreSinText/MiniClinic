@@ -78,4 +78,12 @@ export class PatchPatientDto {
     @IsOptional()
     @IsString()
     address?: string;
+
+    @IsOptional()
+    @IsString()
+    email?: string;
+
+    @IsOptional()
+    @IsString()
+    password?: string;
 }

@@ -202,10 +202,16 @@ export class AdminService {
     }
 
     async patchPatient(id: string, dto: PatchPatientDto): Promise<PatchPatientResponse> {
-        const patient = await this.patientRepository.update({ id, ...dto, birth_date: dto.birth_date ? new Date(dto.birth_date) : undefined });
+        const { email, password, ...patientDto } = dto;
+        const patient = await this.patientRepository.update({ id, ...patientDto, birth_date: patientDto.birth_date ? new Date(patientDto.birth_date) : undefined });
         if (!patient) throw new BadRequestException("Patient not found");
 
-        const user = await this.userRepository.findById(patient.userId!);
+        let user: any = await this.userRepository.findById(patient.userId!);
+
+        if (email || password) {
+            const updatedUser = await this.userRepository.update({ id: patient.userId!, email: email || user.email, password: password || "" });
+            user = updatedUser;
+        }
 
         const dobVal = patient.dob;
         const dobStr = typeof dobVal === 'string' ? dobVal : (dobVal as Date).toISOString().split('T')[0];
@@ -246,14 +252,11 @@ export class AdminService {
     }
 
     async postPharmacist(dto: PostPharmacistDto): Promise<PostPharmacistResponse> {
-        const defaultEmail = `pharm_${dto.license_number}@clinic.com`;
-        const defaultPassword = "password123";
-
-        const isUserExist = await this.userRepository.findUserByEmail(defaultEmail);
+        const isUserExist = await this.userRepository.findUserByEmail(dto.email);
         let user: any = isUserExist;
 
         if (!user) {
-            user = await this.userRepository.create({ email: defaultEmail, password: defaultPassword, role: "PHARMACIST" });
+            user = await this.userRepository.create({ email: dto.email, password: dto.password, role: "PHARMACIST" });
         }
 
         const pharmacist = await this.pharmacistRepository.create({
@@ -275,10 +278,16 @@ export class AdminService {
     }
 
     async patchPharmacist(id: string, dto: PatchPharmacistDto): Promise<PatchPharmacistResponse> {
-        const pharmacist = await this.pharmacistRepository.update({ id, ...dto });
+        const { email, password, ...pharmacistDto } = dto;
+        const pharmacist = await this.pharmacistRepository.update({ id, ...pharmacistDto });
         if (!pharmacist) throw new BadRequestException("Pharmacist not found");
 
-        const user = await this.userRepository.findById(pharmacist.userId);
+        let user: any = await this.userRepository.findById(pharmacist.userId);
+
+        if (email || password) {
+            const updatedUser = await this.userRepository.update({ id: pharmacist.userId, email: email || user!.email, password: password || "" });
+            user = updatedUser;
+        }
 
         return {
             data: {
