@@ -384,20 +384,23 @@ export class AdminService {
             search_by_active: true
         });
 
+        // Check if doctor has a schedule on this day
         const activeSchedule = schedules.data.find(s => s.dayOfWeek === dayOfWeek);
         if (!activeSchedule) {
             throw new BadRequestException(`Doctor does not have a schedule on this day (${appointmentDate.toLocaleDateString('en-US', { weekday: 'long' })})`);
         }
 
-
         const currentCount = await this.appointmentRepository.countDoctorAppointments(doctor_id, appointmentDate);
         const queue_number = currentCount + 1;
+
+        const status = currentCount === 1 ? "WAITING" : "IN_PROGRESS";
 
         const appointment = await this.appointmentRepository.create({
             queue_number,
             date: appointmentDate,
             patient_id,
-            doctor_id
+            doctor_id,
+            status
         });
 
 

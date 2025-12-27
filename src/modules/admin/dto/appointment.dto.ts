@@ -24,8 +24,8 @@ export class GetAppointmentsQueryDto {
     date?: string;
 
     @IsOptional()
-    @IsEnum(['WAITING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'])
-    status?: 'WAITING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+    @IsEnum(['WAITING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'COMPLETE_CONSULTATION'])
+    status?: 'WAITING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'COMPLETE_CONSULTATION';
 }
 
 export class PostAppointmentDto {
@@ -45,6 +45,6 @@ export class PatchAppointmentDto {
     date?: string;
 
     @IsOptional()
-    @IsEnum(['WAITING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'])
-    status?: 'WAITING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+    @IsEnum(['WAITING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'COMPLETE_CONSULTATION'])
+    status?: 'WAITING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'COMPLETE_CONSULTATION';
 }

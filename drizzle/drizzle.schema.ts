@@ -34,6 +34,7 @@ export const appointmentStatusEnum = pgEnum('appointment_status', [
   'IN_PROGRESS',
   'COMPLETED',
   'CANCELLED',
+  'COMPLETE_CONSULTATION',
 ]);
 export const prescriptionStatusEnum = pgEnum('prescription_status', [
   'PENDING',
