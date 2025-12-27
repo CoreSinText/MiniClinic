@@ -132,3 +132,24 @@ export interface PatchMedicineResponse {
 export interface DeleteMedicineResponse {
     data: { id: string }
 }
+
+// Appointment Response
+export interface GetAppointmentsResponse {
+    data: {
+        id: string;
+        queue_number: number;
+        date: string;
+        status: string;
+        patient: { id: string, name: string };
+        doctor: { id: string, name: string };
+    }[];
+    meta: { total_data: number; }
+}
+
+export interface PostAppointmentResponse {
+    data: GetAppointmentsResponse['data'][number]
+}
+
+export interface PatchAppointmentResponse {
+    data: GetAppointmentsResponse['data'][number]
+}

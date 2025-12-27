@@ -16,6 +16,9 @@ import { GetPatientsQueryDto, PatchPatientDto, PostPatientDto } from './dto/pati
 import { DeleteMedicineResponse, DeletePatientResponse, DeletePharmacistResponse, GetMedicinesResponse, GetPatientsResponse, GetPharmacistsResponse, PatchMedicineResponse, PatchPatientResponse, PatchPharmacistResponse, PostMedicineResponse, PostPatientResponse, PostPharmacistResponse } from './admin.response';
 import { GetPharmacistsQueryDto, PatchPharmacistDto, PostPharmacistDto } from './dto/pharmacist.dto';
 import { GetMedicinesQueryDto, PatchMedicineDto, PostMedicineDto } from './dto/medicine.dto';
+import { GetAppointmentsQueryDto, PatchAppointmentDto, PostAppointmentDto } from './dto/appointment.dto';
+import { GetAppointmentsResponse, PatchAppointmentResponse, PostAppointmentResponse } from './admin.response';
+import { AppointmentRepository } from 'src/repositories/appointment.repository';
 
 @Injectable()
 export class AdminService {
@@ -25,7 +28,8 @@ export class AdminService {
         private scheduleDoctorRepository: ScheduleDoctorRepository,
         private patientRepository: PatientRepository,
         private pharmacistRepository: PharmacistRepository,
-        private medicineRepository: MedicineRepository
+        private medicineRepository: MedicineRepository,
+        private appointmentRepository: AppointmentRepository
     ) { }
 
     async getDoctors(query: GetDoctorsQueryDto): Promise<GetDoctorsResponse> {
@@ -351,5 +355,125 @@ export class AdminService {
     async deleteMedicine(id: string): Promise<DeleteMedicineResponse> {
         const deleted = await this.medicineRepository.delete(id);
         return { data: deleted };
+    }
+
+    // Appointment
+    async getAppointments(query: GetAppointmentsQueryDto): Promise<GetAppointmentsResponse> {
+        const { appointments, total_data } = await this.appointmentRepository.findMany(query);
+        return {
+            data: appointments.map((data: any) => ({
+                id: data.id,
+                queue_number: data.queueNumber,
+                date: typeof data.date === 'string' ? data.date : data.date.toISOString().split('T')[0],
+                status: data.status,
+                patient: { id: data.patient.id, name: data.patient.name },
+                doctor: { id: data.doctor.id, name: data.doctor.name }
+            })),
+            meta: { total_data }
+        }
+    }
+
+    async postAppointment(dto: PostAppointmentDto): Promise<PostAppointmentResponse> {
+        const { doctor_id, patient_id, date } = dto;
+        const appointmentDate = new Date(date);
+        const dayOfWeek = appointmentDate.getDay();
+
+
+        const schedules = await this.scheduleDoctorRepository.findMany({
+            search_by_doctor_id: doctor_id,
+            search_by_active: true
+        });
+
+        const activeSchedule = schedules.data.find(s => s.dayOfWeek === dayOfWeek);
+        if (!activeSchedule) {
+            throw new BadRequestException(`Doctor does not have a schedule on this day (${appointmentDate.toLocaleDateString('en-US', { weekday: 'long' })})`);
+        }
+
+
+        const currentCount = await this.appointmentRepository.countDoctorAppointments(doctor_id, appointmentDate);
+        const queue_number = currentCount + 1;
+
+        const appointment = await this.appointmentRepository.create({
+            queue_number,
+            date: appointmentDate,
+            patient_id,
+            doctor_id
+        });
+
+
+        const newAppt = await this.appointmentRepository.findById(appointment.id);
+        if (!newAppt) throw new BadRequestException("Failed to retrieve created appointment");
+
+        return {
+            data: {
+                id: newAppt.id,
+                queue_number: newAppt.queueNumber,
+                date: typeof newAppt.date === 'string' ? newAppt.date : newAppt.date.toISOString().split('T')[0],
+                status: newAppt.status as string,
+                patient: { id: newAppt.patient.id, name: newAppt.patient.name },
+                doctor: { id: newAppt.doctor.id, name: newAppt.doctor.name }
+            }
+        }
+    }
+
+    async patchAppointment(id: string, dto: PatchAppointmentDto): Promise<PatchAppointmentResponse> {
+        const appointment = await this.appointmentRepository.findById(id);
+        if (!appointment) throw new BadRequestException("Appointment not found");
+
+        // Role Restriction: Admin cannot touch IN_PROGRESS
+        if (appointment.status === 'IN_PROGRESS') {
+            throw new BadRequestException("Cannot update appointment that is IN_PROGRESS. Only doctors can manage ongoing appointments.");
+        }
+        if (dto.status === 'IN_PROGRESS') {
+            throw new BadRequestException("Admins cannot set status to IN_PROGRESS.");
+        }
+
+
+        let newQueueNumber = appointment.queueNumber;
+        let newDate = appointment.date;
+
+        if (dto.date) {
+            const dateObj = new Date(dto.date);
+            const dayOfWeek = dateObj.getDay();
+
+            const schedules = await this.scheduleDoctorRepository.findMany({
+                search_by_doctor_id: appointment.doctorId,
+                search_by_active: true
+            });
+
+            const activeSchedule = schedules.data.find(s => s.dayOfWeek === dayOfWeek);
+            if (!activeSchedule) {
+                throw new BadRequestException(`Doctor does not have a schedule on the new date`);
+            }
+
+
+            if (dateObj.getTime() !== appointment.date.getTime()) {
+                const currentCount = await this.appointmentRepository.countDoctorAppointments(appointment.doctorId, dateObj);
+                newQueueNumber = currentCount + 1;
+                newDate = dateObj;
+            }
+        }
+
+        const updated = await this.appointmentRepository.update({
+            id,
+            status: dto.status,
+            date: newDate,
+            queue_number: newQueueNumber
+        });
+
+        if (!updated) throw new BadRequestException("Failed to update appointment");
+
+        const res = await this.appointmentRepository.findById(id);
+
+        return {
+            data: {
+                id: res!.id,
+                queue_number: res!.queueNumber,
+                date: typeof res!.date === 'string' ? res!.date : res!.date.toISOString().split('T')[0],
+                status: res!.status as string,
+                patient: { id: res!.patient.id, name: res!.patient.name },
+                doctor: { id: res!.doctor.id, name: res!.doctor.name }
+            }
+        }
     }
 }

@@ -9,6 +9,7 @@ import { GetScheduleDoctorDto } from "./dto/get-schedule-doctor.dto";
 import { GetPatientsQueryDto, PostPatientDto, PatchPatientDto } from "./dto/patient.dto";
 import { GetPharmacistsQueryDto, PostPharmacistDto, PatchPharmacistDto } from "./dto/pharmacist.dto";
 import { GetMedicinesQueryDto, PostMedicineDto, PatchMedicineDto } from "./dto/medicine.dto";
+import { GetAppointmentsQueryDto, PatchAppointmentDto, PostAppointmentDto } from "./dto/appointment.dto";
 
 @Controller("admin")
 export class AdminController {
@@ -110,5 +111,21 @@ export class AdminController {
     @Delete("medicine/:id")
     async deleteMedicine(@Param("id") id: string) {
         return this.adminService.deleteMedicine(id);
+    }
+
+    // Appointment
+    @Get("patient/appointments")
+    async getAppointments(@Query() query: GetAppointmentsQueryDto) {
+        return this.adminService.getAppointments(query);
+    }
+
+    @Post("patient/appointment")
+    async postAppointment(@Body() dto: PostAppointmentDto) {
+        return this.adminService.postAppointment(dto);
+    }
+
+    @Patch("patient/appointment/:id")
+    async patchAppointment(@Param("id") id: string, @Body() dto: PatchAppointmentDto) {
+        return this.adminService.patchAppointment(id, dto);
     }
 }

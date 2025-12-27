@@ -8,11 +8,12 @@ import { PharmacistRepository } from './pharmacist.repository';
 import { ScheduleDoctorRepository } from './schedule-doctor.repository';
 
 import { MedicineRepository } from './medicine.repository';
+import { AppointmentRepository } from './appointment.repository';
 
 @Global()
 @Module({
     imports: [DrizzleModule],
-    providers: [UserRepository, PatientRepository, DoctorRepository, PharmacistRepository, ScheduleDoctorRepository, MedicineRepository],
-    exports: [UserRepository, PatientRepository, DoctorRepository, PharmacistRepository, ScheduleDoctorRepository, MedicineRepository],
+    providers: [UserRepository, PatientRepository, DoctorRepository, PharmacistRepository, ScheduleDoctorRepository, MedicineRepository, AppointmentRepository],
+    exports: [UserRepository, PatientRepository, DoctorRepository, PharmacistRepository, ScheduleDoctorRepository, MedicineRepository, AppointmentRepository],
 })
 export class RepositoriesModule { }
