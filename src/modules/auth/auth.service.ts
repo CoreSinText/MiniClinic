@@ -91,21 +91,27 @@ export class AuthService {
         if (!user) throw new BadRequestException('Email or password is incorrect');
 
         let name = '';
+        let id = ""
         if (user.role === 'PATIENT') {
             const patient = await this.patientRepository.findPatientByUserId(user.id);
             name = patient?.name || '';
+            id = patient?.id || ''
         } else if (user.role === 'DOCTOR') {
-            const doctor = await this.doctorRepository.findById(user.id);
+            const doctor = await this.doctorRepository.findByUserId(user.id);
             name = doctor?.name || '';
+            id = doctor?.id || ''
         } else if (user.role === 'PHARMACIST') {
             const pharmacist = await this.pharmacistRepository.findByUserId(user.id);
             name = pharmacist?.name || '';
+            id = pharmacist?.id || ''
         } else if (user.role === 'ADMIN') {
             name = 'Admin';
+            id = user.id
         }
 
-        const token = JwtToken.generate({ id: user.id, role: user.role!, email: user.email, });
+        const token = JwtToken.generate({ id: id, role: user.role!, email: user.email, });
+        console.log({ data: { token, user_id: id, email: existingUser.email, name, role: existingUser.role! } });
 
-        return { data: { token, user_id: existingUser.id, email: existingUser.email, name, role: existingUser.role! } }
+        return { data: { token, user_id: id, email: existingUser.email, name, role: existingUser.role! } }
     }
 }

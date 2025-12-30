@@ -36,9 +36,16 @@ export class DoctorRepository {
         private db: NodePgDatabase<typeof schema>,
     ) { }
 
-    async findById(userId: string) {
+    async findById(id: string) {
+        console.log(id);
         return this.db.query.doctors.findFirst({
-            where: eq(schema.doctors.userId, userId),
+            where: eq(schema.doctors.id, id),
+        });
+    }
+
+    async findByUserId(id: string) {
+        return this.db.query.doctors.findFirst({
+            where: eq(schema.doctors.userId, id),
         });
     }
 

@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DrizzleAsyncProvider } from '../../drizzle/drizzle.provider';
 import * as schema from '../../drizzle/drizzle.schema';
-import { and, asc, between, count, desc, eq, ilike, SQL, sql } from 'drizzle-orm';
+import { and, asc, between, count, eq, SQL } from 'drizzle-orm';
 
 interface CreateAppointmentParams {
     queue_number: number;
@@ -25,6 +25,13 @@ interface UpdateAppointmentParams {
     status?: typeof schema.appointments.status.enumValues[number];
     date?: Date;
     queue_number?: number;
+}
+
+interface FindCurrentAppointment {
+    doctor_id: string,
+    day_of_week: number,
+    start_time: string,
+    end_time: string
 }
 
 @Injectable()
@@ -97,8 +104,9 @@ export class AppointmentRepository {
         });
     }
 
-    async update(params: UpdateAppointmentParams) {
-        const [updated] = await this.db.update(schema.appointments)
+    async update(params: UpdateAppointmentParams, tx?: any) {
+        const executor = tx || this.db;
+        const [updated] = await executor.update(schema.appointments)
             .set({
                 status: params.status,
                 date: params.date,
@@ -111,7 +119,7 @@ export class AppointmentRepository {
     }
 
     async countDoctorAppointments(doctorId: string, date: Date): Promise<number> {
-        // Count appointments for a specific doctor on a specific date to determine next queue number
+
         const startOfDay = new Date(date);
         startOfDay.setHours(0, 0, 0, 0);
 
@@ -127,5 +135,27 @@ export class AppointmentRepository {
             ));
 
         return result[0]?.count ?? 0;
+    }
+
+    async findCurrentAppointment(doctorId: string) {
+        const appointment = await this.db.query.appointments.findFirst({
+            where: and(
+                eq(schema.appointments.doctorId, doctorId),
+                eq(schema.appointments.status, 'IN_PROGRESS')
+            ),
+            with: {
+                patient: true,
+            }
+        });
+        if (!appointment) throw new Error('Appointment not found');
+
+        const medicalRecord = await this.db.query.medicalRecords.findMany({
+            where: eq(schema.medicalRecords.patientId, appointment?.patientId!),
+        });
+
+        return {
+            appointment,
+            medicalRecord
+        }
     }
 }
