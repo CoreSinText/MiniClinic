@@ -41,11 +41,7 @@ export const prescriptionStatusEnum = pgEnum('prescription_status', [
   'DISPENSED',
 ]);
 
-export const genderEnum = pgEnum('gender', [
-  'Male',
-  'Female',
-]);
-
+export const genderEnum = pgEnum('gender', ['Male', 'Female']);
 
 // ================= TABLES =================
 
@@ -106,8 +102,8 @@ export const pharmacists = pgTable('pharmacists', {
 export const doctorSchedules = pgTable('doctor_schedules', {
   id: uuid('id').defaultRandom().primaryKey(),
   dayOfWeek: integer('day_of_week').notNull(), // 0=Sunday, 1=Monday, etc.
-  startTime: time("start_time").notNull(),
-  endTime: time("end_time").notNull(),
+  startTime: time('start_time').notNull(),
+  endTime: time('end_time').notNull(),
   isActive: boolean('is_active').default(true),
   doctorId: uuid('doctor_id')
     .references(() => doctors.id)

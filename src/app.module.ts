@@ -5,11 +5,6 @@ import { DrizzleModule } from '../drizzle/drizzle.module';
 import { DoctorModule } from './modules/doctor/doctor.module';
 
 @Module({
-    imports: [
-        DrizzleModule,
-        AuthModule,
-        AdminModule,
-        DoctorModule
-    ],
+  imports: [DrizzleModule, AuthModule, AdminModule, DoctorModule],
 })
-export class AppModule { }
+export class AppModule {}
