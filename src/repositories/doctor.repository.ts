@@ -37,7 +37,6 @@ export class DoctorRepository {
     ) { }
 
     async findById(id: string) {
-        console.log(id);
         return this.db.query.doctors.findFirst({
             where: eq(schema.doctors.id, id),
         });

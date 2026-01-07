@@ -110,8 +110,6 @@ export class AuthService {
         }
 
         const token = JwtToken.generate({ id: id, role: user.role!, email: user.email, name: name });
-        console.log({ data: { token, user_id: id, email: existingUser.email, name, role: existingUser.role! } });
-
         return { data: { token, user_id: id, email: existingUser.email, name, role: existingUser.role! } }
     }
 }
