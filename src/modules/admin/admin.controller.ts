@@ -128,4 +128,9 @@ export class AdminController {
     async patchAppointment(@Param("id") id: string, @Body() dto: PatchAppointmentDto) {
         return this.adminService.patchAppointment(id, dto);
     }
+
+    @Patch("prescription/:id/dispense")
+    async dispensePrescription(@Param("id") id: string) {
+        return this.adminService.dispensePrescription(id);
+    }
 }

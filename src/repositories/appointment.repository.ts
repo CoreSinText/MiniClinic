@@ -169,4 +169,8 @@ export class AppointmentRepository {
             }
         });
     }
+
+    async deleteAll() {
+        return this.db.delete(schema.appointments);
+    }
 }

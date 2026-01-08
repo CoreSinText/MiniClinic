@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
+import { SchedulerModule } from './modules/scheduler/scheduler.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { DrizzleModule } from '../drizzle/drizzle.module';
@@ -14,6 +16,8 @@ import { PharmacyModule } from './modules/pharmacy/pharmacy.module';
     DoctorModule,
     PatientModule,
     PharmacyModule,
+    ScheduleModule.forRoot(),
+    SchedulerModule,
   ],
 })
-export class AppModule {}
+export class AppModule { }
