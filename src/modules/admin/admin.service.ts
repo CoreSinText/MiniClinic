@@ -412,7 +412,7 @@ export class AdminService {
                 id: newAppt.id,
                 queue_number: newAppt.queueNumber,
                 date: typeof newAppt.date === 'string' ? newAppt.date : newAppt.date.toISOString().split('T')[0],
-                status: newAppt.status as string,
+                status: newAppt.status!,
                 patient: { id: newAppt.patient.id, name: newAppt.patient.name },
                 doctor: { id: newAppt.doctor.id, name: newAppt.doctor.name }
             }
@@ -473,7 +473,7 @@ export class AdminService {
                 id: res!.id,
                 queue_number: res!.queueNumber,
                 date: typeof res!.date === 'string' ? res!.date : res!.date.toISOString().split('T')[0],
-                status: res!.status as string,
+                status: res!.status!,
                 patient: { id: res!.patient.id, name: res!.patient.name },
                 doctor: { id: res!.doctor.id, name: res!.doctor.name }
             }

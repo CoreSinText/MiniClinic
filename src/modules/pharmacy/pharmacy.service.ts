@@ -8,6 +8,7 @@ import type { PrescriptionItem } from 'src/repositories/prescription.repository'
 import { MedicineRepository } from 'src/repositories/medicine.repository';
 import { PatientRepository } from 'src/repositories/patient.repository';
 import { MedicalRecordRepository, MedicalRecord } from 'src/repositories/medical-record.repository';
+import { AppointmentRepository } from 'src/repositories/appointment.repository';
 
 interface CreatePrescriptionItem {
   medicineId: string;
@@ -43,7 +44,8 @@ export class PharmacyService {
     private readonly medicineRepo: MedicineRepository,
     private readonly patientRepo: PatientRepository,
     private readonly medicalRecordRepo: MedicalRecordRepository,
-  ) {}
+    private readonly appointmentRepo: AppointmentRepository,
+  ) { }
 
   async createAndGivePrescription(
     dto: CreatePrescriptionDto,
@@ -98,5 +100,42 @@ export class PharmacyService {
   async getConsultedPatients(query: any): Promise<{ patients: any[]; total_data: number }> {
     const res = await this.patientRepo.findConsultedPatients(query || {});
     return res;
+  }
+
+  async getCompleteConsultations() {
+    const appointments = await this.appointmentRepo.findCompletedConsultations();
+    const mappedAppointments = appointments.map(apt => ({
+      id: apt.id,
+      queue_number: apt.queueNumber,
+      date: apt.date,
+      status: apt.status,
+      patient_id: apt.patientId,
+      doctor_id: apt.doctorId,
+      patient: {
+        id: apt.patient.id,
+        national_id: apt.patient.nationalId,
+        name: apt.patient.name,
+        dob: apt.patient.dob,
+        address: apt.patient.address,
+        phone: apt.patient.phone,
+        gender: apt.patient.gender,
+        user_id: apt.patient.userId,
+      },
+      doctor: {
+        id: apt.doctor.id,
+        name: apt.doctor.name,
+      },
+      medical_record: apt.medicalRecord ? {
+        diagnosis: apt.medicalRecord.diagnosis,
+        symptoms: apt.medicalRecord.symptoms,
+        notes: apt.medicalRecord.notes,
+        treatment: apt.medicalRecord.treatment,
+      } : null,
+    }));
+
+    return {
+      data: mappedAppointments,
+      meta: { total_data: mappedAppointments.length }
+    };
   }
 }

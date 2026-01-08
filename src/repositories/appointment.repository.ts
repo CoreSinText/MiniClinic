@@ -158,4 +158,15 @@ export class AppointmentRepository {
             medicalRecord
         }
     }
+
+    async findCompletedConsultations() {
+        return this.db.query.appointments.findMany({
+            where: eq(schema.appointments.status, 'COMPLETE_CONSULTATION'),
+            with: {
+                patient: true,
+                doctor: true,
+                medicalRecord: true,
+            }
+        });
+    }
 }
